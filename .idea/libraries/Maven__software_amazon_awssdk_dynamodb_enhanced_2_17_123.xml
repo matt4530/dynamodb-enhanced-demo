@@ -1,0 +1,13 @@
+<component name="libraryTable">
+  <library name="Maven: software.amazon.awssdk:dynamodb-enhanced:2.17.123">
+    <CLASSES>
+      <root url="jar://$MAVEN_REPOSITORY$/software/amazon/awssdk/dynamodb-enhanced/2.17.123/dynamodb-enhanced-2.17.123.jar!/" />
+    </CLASSES>
+    <JAVADOC>
+      <root url="jar://$MAVEN_REPOSITORY$/software/amazon/awssdk/dynamodb-enhanced/2.17.123/dynamodb-enhanced-2.17.123-javadoc.jar!/" />
+    </JAVADOC>
+    <SOURCES>
+      <root url="jar://$MAVEN_REPOSITORY$/software/amazon/awssdk/dynamodb-enhanced/2.17.123/dynamodb-enhanced-2.17.123-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>
