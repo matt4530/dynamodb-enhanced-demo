@@ -24,7 +24,6 @@ public class VisitsDAO {
 
     private static final String VisitorAttr = "visitor";
     private static final String LocationAttr = "location";
-    private static final String VisitCountAttr = "visit_count";
 
     // DynamoDB client
     private static DynamoDbClient dynamoDbClient = DynamoDbClient.builder()
@@ -135,9 +134,35 @@ public class VisitsDAO {
                 .limit(pageSize)
                 .collect(Collectors.toList());
 
-        // an alternative implementation of the line above
+        /*
+         * Alternative Implementation 1 of the line above, using forEach
+         */
         //List<Visit> visits = new ArrayList<>();
         //table.query(request).items().stream().limit(pageSize).forEach(v -> visits.add(v));
+        //return visits;
+
+        /*
+         * Alternative Implementation 2 of the line above, using a for loop
+         */
+        //List<Visit> visits = new ArrayList<>();
+        //for(Visit visit : table.query(request).items()) {
+        //    // stop iteration if we've reached the number of items asked for
+        //    if(visits.size() >= pageSize)
+        //        break;
+        //    visits.add(visit);
+        //}
+        //return visits;
+
+        /*
+         * Alternative Implementation 3 of the line above, using a while loop
+         */
+        //List<Visit> visits = new ArrayList<>();
+        //Iterator<Visit> it = table.query(request).items().iterator();
+        //// while there are elements to iterate over, and we haven't reached the number of items asked for
+        //while(it.hasNext() && visits.size() < pageSize){
+        //    Visit visit = it.next();
+        //    visits.add(visit);
+        //}
         //return visits;
     }
 
