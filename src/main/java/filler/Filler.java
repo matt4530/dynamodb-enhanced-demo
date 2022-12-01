@@ -36,7 +36,7 @@ public class Filler {
 
             String firstName = "Guy" + paddedNumber;
             String lastName = "LastName" + paddedNumber;
-            String alias = "guy" + paddedNumber;
+            String alias = "@guy" + paddedNumber;
             String imageUrl = "https://i.imgur.com/hE1pTMb.jpg";
 
             // Note that in this example, a UserDTO only has a name and an alias.
