@@ -19,8 +19,8 @@ import java.util.stream.Collectors;
 
 public class VisitsDAO {
 
-    private static final String TableName = "visits_demo";
-    public static final String IndexName = "location-visitor-index2";
+    private static final String TableName = "visits";
+    public static final String IndexName = "visits-index";
 
     private static final String VisitorAttr = "visitor";
     private static final String LocationAttr = "location";
@@ -105,16 +105,15 @@ public class VisitsDAO {
      * @param lastLocation The last location returned in the previous page of results
      * @return The next page of locations visited by visitor
      */
-    public List<Visit> getVisitedLocations(String visitor, int pageSize, String lastLocation) {
+    public DataPage<Visit> getVisitedLocations(String visitor, int pageSize, String lastLocation) {
         DynamoDbTable<Visit> table = enhancedClient.table(TableName, TableSchema.fromBean(Visit.class));
         Key key = Key.builder()
                 .partitionValue(visitor)
                 .build();
 
         QueryEnhancedRequest.Builder requestBuilder = QueryEnhancedRequest.builder()
-                .queryConditional(QueryConditional.keyEqualTo(key));
-                // If you use iterators, it auto-fetches next page always, so instead limit the stream below
-                //.limit(5);
+                .queryConditional(QueryConditional.keyEqualTo(key))
+                .limit(pageSize);
 
         if(isNonEmptyString(lastLocation)) {
             // Build up the Exclusive Start Key (telling DynamoDB where you left off reading items)
@@ -127,42 +126,17 @@ public class VisitsDAO {
 
         QueryEnhancedRequest request = requestBuilder.build();
 
-        return table.query(request)
-                .items()
-                .stream()
-                .limit(pageSize)
-                .collect(Collectors.toList());
+        DataPage<Visit> result = new DataPage<Visit>();
 
-        /*
-         * Alternative Implementation 1 of the line above, using forEach
-         */
-        //List<Visit> visits = new ArrayList<>();
-        //table.query(request).items().stream().limit(pageSize).forEach(v -> visits.add(v));
-        //return visits;
+        PageIterable<Visit> pages = table.query(request);
+        pages.stream()
+                .limit(1)
+                .forEach((Page<Visit> page) -> {
+                    result.setHasMorePages(page.lastEvaluatedKey() != null);
+                    page.items().forEach(visit -> result.getValues().add(visit));
+                });
 
-        /*
-         * Alternative Implementation 2 of the line above, using a for loop
-         */
-        //List<Visit> visits = new ArrayList<>();
-        //for(Visit visit : table.query(request).items()) {
-        //    // stop iteration if we've reached the number of items asked for
-        //    if(visits.size() >= pageSize)
-        //        break;
-        //    visits.add(visit);
-        //}
-        //return visits;
-
-        /*
-         * Alternative Implementation 3 of the line above, using a while loop
-         */
-        //List<Visit> visits = new ArrayList<>();
-        //Iterator<Visit> it = table.query(request).items().iterator();
-        //// while there are elements to iterate over, and we haven't reached the number of items asked for
-        //while(it.hasNext() && visits.size() < pageSize){
-        //    Visit visit = it.next();
-        //    visits.add(visit);
-        //}
-        //return visits;
+        return result;
     }
 
     /**
@@ -173,7 +147,7 @@ public class VisitsDAO {
      * @param lastVisitor The last visitor returned in the previous page of results
      * @return The next page of visitors who have visited location
      */
-    public List<Visit>  getVisitors(String location, int pageSize, String lastVisitor) {
+    public DataPage<Visit>  getVisitors(String location, int pageSize, String lastVisitor) {
         DynamoDbIndex<Visit> index = enhancedClient.table(TableName, TableSchema.fromBean(Visit.class)).index(IndexName);
         Key key = Key.builder()
                 .partitionValue(location)
@@ -181,8 +155,6 @@ public class VisitsDAO {
 
         QueryEnhancedRequest.Builder requestBuilder = QueryEnhancedRequest.builder()
                 .queryConditional(QueryConditional.keyEqualTo(key))
-                // Unlike Tables, querying from an Index returns a PageIterable, so we want to just ask for
-                // 1 page with pageSize items
                 .limit(pageSize);
 
         if(isNonEmptyString(lastVisitor)) {
@@ -195,16 +167,18 @@ public class VisitsDAO {
 
         QueryEnhancedRequest request = requestBuilder.build();
 
-        List<Visit> visits = new ArrayList<>();
+        DataPage<Visit> result = new DataPage<Visit>();
 
-        SdkIterable<Page<Visit>> results2 = index.query(request);
-        PageIterable<Visit> pages = PageIterable.create(results2);
-        // limit 1 page, with pageSize items
+        SdkIterable<Page<Visit>> sdkIterable = index.query(request);
+        PageIterable<Visit> pages = PageIterable.create(sdkIterable);
         pages.stream()
-            .limit(1)
-            .forEach(visitsPage -> visitsPage.items().forEach(v -> visits.add(v)));
+                .limit(1)
+                .forEach((Page<Visit> page) -> {
+                    result.setHasMorePages(page.lastEvaluatedKey() != null);
+                    page.items().forEach(visit -> result.getValues().add(visit));
+                });
 
-        return visits;
+        return result;
     }
 
 }
