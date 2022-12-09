@@ -7,9 +7,9 @@ public class Main {
         /**
          * Delete old items
          */
-        dao.deleteVisit("matt", "provo");
+        dao.deleteVisit("matt", "utah");
         dao.deleteVisit("matt", "guatemala");
-        dao.deleteVisit("matt", "orem");
+        dao.deleteVisit("matt", "idaho");
         dao.deleteVisit("matt", "italy");
         dao.deleteVisit("elliot", "italy");
         dao.deleteVisit("nate", "italy");
@@ -29,16 +29,16 @@ public class Main {
 
 
         /**
-         * Update an item, one of which exists (guatemala), one of which is new (provo)
+         * Update an item, one of which exists (guatemala), one of which is new (utah)
          */
-        dao.recordVisit("matt", "provo");
+        dao.recordVisit("matt", "utah");
         dao.recordVisit("matt", "guatemala");
 
         int countGuatemala = dao.getVisitCount("matt", "guatemala");
         System.out.println("(After recording) Matt has visited Guatemala " + countGuatemala + " time(s)");
 
-        int countProvo = dao.getVisitCount("matt", "provo");
-        System.out.println("(After recording) Matt has visited Provo " + countProvo + " time(s)");
+        int countUtah = dao.getVisitCount("matt", "utah");
+        System.out.println("(After recording) Matt has visited utah " + countUtah + " time(s)");
 
 
 
@@ -46,15 +46,15 @@ public class Main {
         /**
          * Delete an item
          */
-        dao.deleteVisit("matt", "provo");
-        int countProvo2 = dao.getVisitCount("matt", "provo");
-        System.out.println("(After deletion) Matt has visited Provo " + countProvo2 + " time(s)");
+        dao.deleteVisit("matt", "utah");
+        int countUtah2 = dao.getVisitCount("matt", "utah");
+        System.out.println("(After deletion) Matt has visited utah " + countUtah2 + " time(s)");
 
 
         /**
          * Add more items
          */
-        dao.recordVisit("matt", "orem");
+        dao.recordVisit("matt", "idaho");
         dao.recordVisit("matt", "italy");
 
         dao.recordVisit("elliot", "italy");
@@ -66,8 +66,9 @@ public class Main {
          */
         DataPage<Visit> page = dao.getVisitedLocations("matt", 2, null);
         List<Visit> visits = page.getValues();
-        verify(page.isHasMorePages());
-        System.out.println("Matt has visited: " + visits);
+        boolean hasMorePages = page.isHasMorePages();
+        System.out.println("Matt has visited: " + visits + ", and are there more pages? " + hasMorePages);
+        verify(hasMorePages);
 
         String lastLocation = visits.get(visits.size() - 1).getLocation();
 
@@ -76,8 +77,9 @@ public class Main {
          */
         DataPage<Visit> page2 = dao.getVisitedLocations("matt", 2, lastLocation);
         List<Visit> visits2 = page2.getValues();
-        verify(!page2.isHasMorePages());
-        System.out.println("Matt has also visited: " + visits2);
+        boolean hasMorePages2 = page2.isHasMorePages();
+        System.out.println("Matt has also visited: " + visits2  + ", and are there more pages? " + hasMorePages2);
+        verify(!hasMorePages2);
 
 
 
@@ -88,8 +90,9 @@ public class Main {
          */
         DataPage<Visit> page3 = dao.getVisitors("italy", 2, null);
         List<Visit> visitsToItaly = page3.getValues();
-        verify(page3.isHasMorePages());
-        System.out.println("Italy was visited by: " + visitsToItaly);
+        boolean hasMorePages3 = page3.isHasMorePages();
+        System.out.println("Italy was visited by: " + visitsToItaly + ", and are there are more pages? " + hasMorePages3);
+        verify(hasMorePages3);
 
         String lastVisitor = visitsToItaly.get(visitsToItaly.size() - 1).getVisitor();
 
@@ -98,8 +101,10 @@ public class Main {
          */
         DataPage<Visit> page4 = dao.getVisitors("italy", 2, lastVisitor);
         List<Visit> visitsToItaly2 = page4.getValues();
-        verify(!page4.isHasMorePages());
-        System.out.println("Italy was also visited by: " + visitsToItaly2);
+        boolean hasMorePages4 = page4.isHasMorePages();
+        System.out.println("Italy was also visited by: " + visitsToItaly2 + ", and are there are more pages? " + hasMorePages4);
+        verify(!hasMorePages4);
+
     }
 
     private static void verify(boolean b) {
